@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            color: white;
+        }
+        
+        #instruction-text {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 20px;
+            z-index: 10;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+        
+        #close-button {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.3);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            z-index: 10000;
+            display: none;
+            cursor: pointer;
+        }
+        
+        .model-container {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            background-color: #000;
+        }
+        
+        model-viewer {
+            width: 100%;
+            height: 100%;
+            --poster-color: transparent;
+        }
+        
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
+            z-index: 20;
+        }
+        
+        .container {
+            width: 100%;
+            height: 100%;
+            margin: 0 auto;
+            animation: floating 3s ease-in-out infinite;
+            perspective: 1000px;
+            display: none;
+        }
+
+        .icecream-model {
+            width: 100%;
+            height: 100%;
+            transition: all 0.5s ease;
+        }
+
+        .container:hover .icecream-model {
+            transform: scale(1.05) rotateY(10deg);
+        }
+
+        @keyframes floating {
+            0%, 100% { 
+                transform: translateY(0px) rotate(0deg); 
+            }
+            50% { 
+                transform: translateY(-20px) rotate(2deg); 
+            }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { 
+                transform: translateY(0) scale(1); 
+            }
+            25% { 
+                transform: translateY(-40px) scale(1.05, 0.95); 
+            }
+            50% { 
+                transform: translateY(0) scale(1); 
+            }
+            75% { 
+                transform: translateY(-20px) scale(1.02, 0.98); 
+            }
+        }
+
+        
+        
+        .controls {
+            position: absolute;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+            display: none;
+        }
+        
+        .control-btn {
+            background-color: rgba(255, 255, 255, 0.3);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .a-canvas {
+            z-index: 1;
+        }
+        
+        .mindar-ui-overlay {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    
+    <div id="instruction-text">لطفا دوربین را مقابل بستنی قرار دهید</div>
+    
+    <div class="container">
+        <model-viewer 
+        class="icecream-model"
+        src="icecream.glb" 
+        alt="بستنی شناور"
+        auto-rotate
+        auto-rotate-delay="0"
+        rotation-per-second="70deg"
+        camera-controls
+        environment-image="legacy"
+        exposure="1.2"
+        animation-name="Take 001"
+        camera-orbit="0deg 90deg 105%"
+        field-of-view="30deg"
+        min-camera-orbit="auto 0deg auto"
+        max-camera-orbit="auto 180deg auto"
+        min-field-of-view="30deg"
+        max-field-of-view="70deg"
+        autoplay>
+    </model-viewer>
+    </div>
+    
+    <a-scene mindar-image="imageTargetSrc: targetfull.mind;" uiLoading: false; uiScanning: false; uiError: false; color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+        <a-assets>
+            <a-asset-item id="icecream" src="icecream.glb"></a-asset-item>
+        </a-assets>
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+        <a-entity mindar-image-target="targetIndex: 0">
+            <a-gltf-model rotation="0 0 0 " position="0 0 0.1" scale="0.008 0.008 0.008" src="#icecream" animation-mixer="clip: Take 001" visible="false"></a-gltf-model>
+        </a-entity>
+    </a-scene>
+    
+    <div class="controls" id="controls">
+        <button class="control-btn" id="zoom-in">+</button>
+        <button class="control-btn" id="zoom-out">-</button>
+        <button class="control-btn" id="reset-view">↺</button>
+    </div>
+    
+    <button id="close-button">بستن مدل</button>
+
+    <script>
+        const scene = document.querySelector('a-scene');
+        const modelContainer = document.querySelector('.container');
+        const closeButton = document.getElementById('close-button');
+        const controls = document.getElementById('controls');
+        const instructionText = document.getElementById('instruction-text');
+        let targetFound = false;
+        let currentScale = 1;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const mindarUi = document.querySelector('.mindar-ui-overlay');
+            if (mindarUi) {
+                mindarUi.style.display = 'none';
+            }
+            
+            const scanningElement = document.querySelector('.scanning');
+            if (scanningElement) {
+                scanningElement.style.display = 'none';
+            }
+        });
+        
+        scene.addEventListener('targetFound', event => {
+            console.log("نشانه شناسایی شد");
+            if (!targetFound) {
+                targetFound = true;
+                modelContainer.style.display = 'block';
+                closeButton.style.display = 'block';
+                controls.style.display = 'flex';
+                instructionText.style.display = 'none';
+                
+                const modelViewer = document.querySelector('model-viewer');
+                if (modelViewer) {
+                    modelViewer.play();
+                }
+            }
+        });
+        
+        scene.addEventListener('targetLost', event => {
+            console.log("نشانه از دست رفت");
+        });
+        
+        closeButton.addEventListener('click', function() {
+            modelContainer.style.display = 'none';
+            closeButton.style.display = 'none';
+            controls.style.display = 'none';
+            instructionText.style.display = 'block';
+            targetFound = false;
+            
+            const modelViewer = document.querySelector('model-viewer');
+            if (modelViewer) {
+                modelViewer.pause();
+            }
+        });
+        
+        scene.addEventListener('loaded', function() {
+            console.log("صحنه بارگذاری شد");
+        });
+        
+        const zoomInBtn = document.getElementById('zoom-in');
+        const zoomOutBtn = document.getElementById('zoom-out');
+        const resetViewBtn = document.getElementById('reset-view');
+        
+        zoomInBtn.addEventListener('click', function() {
+            currentScale += 0.1;
+            const modelViewer = document.querySelector('model-viewer');
+            if (modelViewer) {
+                modelViewer.style.transform = `scale(${currentScale})`;
+            }
+        });
+        
+        zoomOutBtn.addEventListener('click', function() {
+            if (currentScale > 0.5) {
+                currentScale -= 0.1;
+                const modelViewer = document.querySelector('model-viewer');
+                if (modelViewer) {
+                    modelViewer.style.transform = `scale(${currentScale})`;
+                }
+            }
+        });
+        
+        resetViewBtn.addEventListener('click', function() {
+            currentScale = 1;
+            const modelViewer = document.querySelector('model-viewer');
+            if (modelViewer) {
+                modelViewer.style.transform = 'scale(1)';
+                modelViewer.cameraOrbit = '0deg 90deg 105%';
+            }
+        });
+    </script>
+</body>
+</html>
